@@ -547,7 +547,48 @@ Mengisi dropdown tahun 1990–2025
 #
     form.addEventListener("submit", function(e) {
         e.preventDefault();
+## Generate Dropdown Tahun
 
+- `for (let i = 1990; i <= 2025; i++)`  
+  Perulangan untuk membuat daftar tahun dari **1990 sampai 2025**.
+
+- `document.getElementById("tahun")`  
+  Mengambil elemen `<select id="tahun">` dari HTML.
+
+- `innerHTML +=`  
+  Digunakan untuk menambahkan isi ke dalam dropdown tanpa menghapus data sebelumnya.
+
+- `` `<option value="${i}">${i}</option>` ``  
+  Membuat pilihan tahun:
+  - `value="${i}"` → nilai yang dikirim
+  - `${i}` → teks yang ditampilkan
+
+#### Hasil:
+Dropdown akan berisi:
+1990, 1991, 1992, ..., sampai 2025
+
+❌ **BUG / Kekurangan: Tahun statis (tidak update otomatis)**
+
+Jika tahun sudah melewati 2025, maka:
+- Dropdown akan menjadi **tidak relevan**
+- Harus diubah manual di kode
+
+✅ **Solusi (lebih fleksibel):**
+Gunakan tahun saat ini secara otomatis:
+
+```javascript
+const currentYear = new Date().getFullYear();
+
+for (let i = 1990; i <= currentYear; i++) {
+    document.getElementById("tahun").innerHTML += 
+    `<option value="${i}">${i}</option>`;
+}
+```
+
+#### Kelebihan Solusi:
+- Selalu update otomatis
+- Tidak perlu ubah kode setiap tahun
+- Lebih profesional
 ### Event Submit
 Mencegah reload halaman
 
@@ -555,84 +596,493 @@ Mencegah reload halaman
         const nim = document.getElementById("nim").value;
         const nama = document.getElementById("nama").value;
         const alamat = document.getElementById("alamat").value;
-
-#
-❌ BUG 3: JK tetap "-" jika kosong
-
         const jk = document.querySelector('input[name="jk"]:checked')?.value || "-";
+### Mengambil Data Input + Jenis Kelamin
 
-✅ Solusi:
+- `document.getElementById("nim").value`  
+  Mengambil nilai NIM dari input.
+
+- `document.getElementById("nama").value`  
+  Mengambil nilai nama.
+
+- `document.getElementById("alamat").value`  
+  Mengambil nilai alamat.
+
+- `document.querySelector('input[name="jk"]:checked')`  
+  Digunakan untuk mengambil **radio button yang dipilih** (checked).
+
+- `?.value` *(optional chaining)*  
+  Jika ada yang dipilih → ambil nilainya  
+  Jika tidak ada → tidak error (undefined)
+
+- `|| "-"`  
+  Jika tidak ada pilihan, maka nilai default menjadi `"-"`
+
+#### Fungsi:
+Digunakan untuk mengambil semua data input termasuk **jenis kelamin**.
+
+❌ **BUG: Jenis kelamin bisa kosong**
+
+Jika user tidak memilih:
+- Tidak ada error
+- Program tetap jalan
+- Nilai otomatis menjadi `"-"`
+
+➡ Ini berbahaya karena:
+- Data menjadi tidak valid
+- User tidak dipaksa mengisi
+  
+✅ **Solusi (validasi wajib pilih):**
 ```javascript
 const jkSelected = document.querySelector('input[name="jk"]:checked');
+
 if (!jkSelected) {
     alert("Pilih jenis kelamin!");
     return;
 }
+
 const jk = jkSelected.value;
 ```
 
+❌ **BUG Tambahan: Validasi input lain masih kurang**
+
+Data seperti:
+- NIM
+- Nama
+
+Masih bisa berisi spasi kosong.
+
+✅ **Solusi tambahan:**
+```javascript
+if (!nim.trim() || !nama.trim()) {
+    alert("NIM dan Nama wajib diisi!");
+    return;
+}
+```
+
+# 
+
+        const tanggal = document.getElementById("tanggal").value;
+        const bulan = document.getElementById("bulan").value;
+        const tahun = document.getElementById("tahun").value;
+### Mengambil Data Tanggal Lahir
+
+#### Penjelasan:
+
+- `document.getElementById("tanggal").value`  
+  Mengambil nilai **tanggal (1–31)** dari dropdown.
+
+- `document.getElementById("bulan").value`  
+  Mengambil nilai **bulan (01–12)** dari dropdown.
+
+- `document.getElementById("tahun").value`  
+  Mengambil nilai **tahun** dari dropdown.
+
+---
+
+#### Fungsi:
+Digunakan untuk mengambil data tanggal lahir yang dipilih user, yang nantinya akan digabung menjadi satu format (TTL).
+
+---
+
+#### Contoh Hasil:
+Jika user memilih:
+- Tanggal: 10  
+- Bulan: 05  
+- Tahun: 2003  
+
+Maka akan menjadi:
+```
+10-05-2003
+```
+
+---
+
+❌ **BUG / Kekurangan: Tidak ada validasi**
+
+User bisa saja:
+- Tidak memilih tanggal
+- Tidak memilih tahun
+
+➡ Data tetap diproses meskipun tidak lengkap
+
+---
+
+✅ **Solusi (validasi input):**
+```javascript
+if (!tanggal || !bulan || !tahun) {
+    alert("Lengkapi tanggal lahir!");
+    return;
+}
+```
+
+---
+
+❌ **BUG tambahan: Tidak validasi jumlah hari**
+
+Contoh:
+- User bisa pilih **31 Februari** (padahal tidak valid)
+
+---
+
+✅ **Solusi lanjutan (opsional):**
+Gunakan validasi jumlah hari berdasarkan bulan:
+
+```javascript
+const isValidDate = new Date(`${tahun}-${bulan}-${tanggal}`).getDate() == tanggal;
+
+if (!isValidDate) {
+    alert("Tanggal tidak valid!");
+    return;
+}
+```
 #
-❌ BUG 4: Password ditampilkan
+        const ttl = `${tanggal}-${bulan}-${tahun}`;
+        
+### Menggabungkan Tanggal Lahir (TTL)
 
+- Template string digunakan untuk menggabungkan:
+  - tanggal
+  - bulan
+  - tahun
+    
+#### Hasil:
+Format menjadi:
+```
+DD-MM-YYYY
+```
+Contoh:
+```
+10-05-2003
+```
+
+#
+        const password = document.getElementById("password").value;
+        
+### Mengambil Password
+
+#### Penjelasan:
+- Mengambil nilai dari input password
+
+❌ **BUG: Data sensitif**
+Password tidak boleh ditampilkan secara langsung.
+
+#
+        const row = document.createElement("tr");
+        
+### Membuat Baris Tabel
+
+- Membuat elemen `<tr>` baru
+- Digunakan untuk menampung data mahasiswa
+
+#
+        row.innerHTML = `
+            <td>${nim}</td>
+            <td>${nama}</td>
+            <td>${alamat}</td>
+            <td>${jk}</td>
+            <td>${ttl}</td>
             <td>${password}</td>
+            <td>
+### Mengisi Data ke Tabel
 
-⚠ Tidak aman (data sensitif)
+- Menggunakan template literal untuk memasukkan data ke tabel
 
-✅ Solusi:
+❌ **BUG 1: Password ditampilkan**
+```html
+<td>${password}</td>
+```
+
+⚠ Ini berbahaya (data sensitif)
+
+✅ **Solusi:**
 ```javascript
 <td>******</td>
 ```
 
 #
-❌ BUG 5: Icon tidak muncul
+                <a href="#" onclick="editRow(this)">
+                    <img src="edit.png" width="20">
+                </a>
+                <a href="#" onclick="deleteRow(this)">
+                    <img src="trash.png" width="20">
+                </a>
+            </td>
+        `;
+### Tombol Aksi (Edit & Delete)
 
-            <img src="edit.png">
+#### Penjelasan:
+- `editRow(this)` → mengedit data
+- `deleteRow(this)` → menghapus data
 
-✅ Solusi:
-```html
-✏️ 🗑️
-```
+❌ **BUG 2: href="#"**
+- Halaman bisa loncat ke atas
 
-#
-❌ BUG 6: href="#"
-
-Menyebabkan halaman loncat
-
-✅ Solusi:
+✅ **Solusi:**
 ```html
 <a href="javascript:void(0)">
 ```
 
-#
-❌ BUG 7: Data hilang saat refresh
+❌ **BUG 3: Icon tidak muncul**
+Jika file `edit.png` atau `trash.png` tidak ada
 
-✅ Solusi:
-```javascript
-localStorage.setItem("data", tableBody.innerHTML);
+✅ **Solusi:**
+```html
+✏️ 🗑️
 ```
+#
+        tableBody.appendChild(row);
+        form.reset();
+    });
+### Menambahkan Data ke Tabel
+
+#### Penjelasan:
+- Menambahkan baris baru ke dalam `<tbody>`
+
+### Reset Form
+
+#### Penjelasan:
+- Mengosongkan input setelah submit
+
 
 #
     function deleteRow(el) {
-
-❌ BUG 8: Tidak ada konfirmasi
-
         el.parentElement.parentElement.remove();
+    }
 
-✅ Solusi:
+### Fungsi Hapus Data (deleteRow)
+
+- `function deleteRow(el)`  
+  Fungsi ini digunakan untuk **menghapus data (baris) pada tabel**.
+
+- `el`  
+  Merupakan elemen yang diklik (biasanya tombol/icon delete).
+
+---
+
+- `el.parentElement`  
+  Mengambil elemen **parent** dari tombol, yaitu `<td>`.
+
+- `el.parentElement.parentElement`  
+  Mengambil **baris tabel (`<tr>`)** yang berisi data.
+
+- `.remove()`  
+  Digunakan untuk **menghapus elemen tersebut dari halaman**.
+  
+#### Cara Kerja:
+1. User klik tombol delete
+2. Fungsi dipanggil dengan parameter `this`
+3. Sistem mencari baris `<tr>`
+4. Baris langsung dihapus dari tabel
+
+❌ **BUG: Tidak ada konfirmasi**
+
+Masalah:
+- Data langsung terhapus
+- User bisa salah klik
+- Tidak ada peringatan
+
+✅ **Solusi (tambahkan konfirmasi):**
 ```javascript
-if (confirm("Yakin ingin menghapus?")) {
-    el.parentElement.parentElement.remove();
+function deleteRow(el) {
+    if (confirm("Yakin ingin menghapus data ini?")) {
+        el.parentElement.parentElement.remove();
+    }
+}
+```
+
+❌ **BUG Tambahan: Data tidak tersimpan**
+
+Jika halaman di-refresh:
+- Data akan hilang
+- Tidak ada penyimpanan
+
+
+✅ **Solusi (gunakan localStorage):**
+```javascript
+function deleteRow(el) {
+    if (confirm("Yakin ingin menghapus data ini?")) {
+        el.parentElement.parentElement.remove();
+        localStorage.setItem("dataMahasiswa", tableBody.innerHTML);
+    }
 }
 ```
 
 #
     function editRow(el) {
+        const row = el.parentElement.parentElement;
+        const cells = row.children;
 
-❌ BUG 9: Edit tidak lengkap
-
+        document.getElementById("nim").value = cells[0].innerText;
+        document.getElementById("nama").value = cells[1].innerText;
+        document.getElementById("alamat").value = cells[2].innerText;
         document.getElementById("password").value = cells[5].innerText;
+        row.remove();
+    }
+### Fungsi Edit Data (editRow)
 
-✅ Solusi:
-- Tambahkan pengisian ulang semua field (JK, tanggal, dll)
+- `function editRow(el)`  
+  Fungsi ini digunakan untuk **mengedit data mahasiswa** yang sudah ada di tabel.
 
+- `el`  
+  Merupakan elemen yang diklik (ikon edit).
+
+---
+
+- `const row = el.parentElement.parentElement;`  
+  Mengambil baris tabel (`<tr>`) dari tombol yang diklik.
+
+- `const cells = row.children;`  
+  Mengambil semua kolom (`<td>`) dalam baris tersebut.
+
+---
+
+#### Mengisi Kembali Form:
+
+- `cells[0].innerText` → NIM  
+- `cells[1].innerText` → Nama  
+- `cells[2].innerText` → Alamat  
+- `cells[5].innerText` → Password  
+
+Data dari tabel dimasukkan kembali ke form agar bisa diedit.
+
+---
+
+- `row.remove();`  
+  Menghapus data lama dari tabel sebelum diperbarui.
+
+---
+
+#### Cara Kerja:
+1. User klik tombol edit  
+2. Data dari tabel diambil  
+3. Form diisi ulang dengan data tersebut  
+4. Data lama dihapus  
+5. User bisa submit ulang data yang sudah diperbaiki  
+
+---
+
+❌ **BUG 1: Edit tidak lengkap**
+
+Data yang tidak ikut terisi:
+- Jenis Kelamin (JK)
+- Tanggal Lahir (TTL)
+
+➡ Akibatnya:
+- User harus mengisi ulang manual
+- Bisa menyebabkan data tidak konsisten
+
+---
+
+✅ **Solusi: Tambahkan pengisian ulang semua field**
+
+Contoh perbaikan:
+```javascript
+// Set jenis kelamin
+const jk = cells[3].innerText;
+document.querySelectorAll('input[name="jk"]').forEach(radio => {
+    radio.checked = (radio.value === jk);
+});
+
+// Set tanggal lahir
+const [tgl, bln, thn] = cells[4].innerText.split("-");
+document.getElementById("tanggal").value = tgl;
+document.getElementById("bulan").value = bln;
+document.getElementById("tahun").value = thn;
+```
+
+---
+
+❌ **BUG 2: Password diambil dari tabel**
+
+Masalah:
+- Password sebelumnya ditampilkan di tabel (tidak aman)
+- Saat edit, password diambil kembali dari tabel
+
+---
+
+✅ **Solusi:**
+- Jangan tampilkan password asli di tabel
+- Gunakan placeholder atau minta user input ulang password
+
+Contoh:
+```javascript
+document.getElementById("password").value = "";
+```
+
+---
+
+❌ **BUG 3: Data langsung dihapus**
+
+Masalah:
+- Jika user batal edit, data hilang
+
+---
+
+✅ **Solusi (opsional):**
+Tambahkan konfirmasi sebelum edit:
+```javascript
+if (confirm("Edit data ini?")) {
+    // proses edit
+}
+```
+
+---
+
+#### Kesimpulan:
+Fungsi ini sudah bisa melakukan edit data, namun perlu perbaikan agar:
+- Semua field ikut terisi  
+- Data lebih aman  
+- Tidak terjadi kehilangan data 
 #
+    </script>
+    
+    </body>
+    </html>
+### Penutup Dokumen HTML
+
+- `</script>`  
+  Menandakan **akhir dari kode JavaScript** yang ditulis di dalam file HTML.
+
+  Setelah tag ini, tidak ada lagi kode JavaScript yang dijalankan.
+
+---
+
+- `</body>`  
+  Menandakan **akhir dari isi halaman web**.
+
+  Semua elemen yang ditampilkan ke pengguna seperti:
+  - Form
+  - Tabel
+  - Teks
+  harus berada di dalam tag `<body>` ini.
+
+---
+
+- `</html>`  
+  Menandakan **akhir dari seluruh dokumen HTML**.
+
+  Ini adalah penutup dari struktur utama HTML.
+
+---
+
+#### Struktur Dasar HTML:
+```html
+<html>
+    <head>
+        <!-- Informasi halaman -->
+    </head>
+    <body>
+        <!-- Isi halaman -->
+    </body>
+</html>
+```
+
+---
+
+#### Kesimpulan:
+Bagian ini berfungsi sebagai **penutup dari seluruh program**, memastikan struktur HTML lengkap dan dapat dibaca dengan baik oleh browser.
+
+Jika salah atau tidak lengkap, maka:
+- Halaman bisa error
+- Tampilan tidak sempurna
